@@ -23,3 +23,27 @@ pipeline {
                 }
             }
         }
+        stage('Copy ISO') {
+            when {
+                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
+            }
+            steps {
+                sshagent(['packer-ssh-key']) {
+                    sh "scp root@${PACKER_VM_IP}:/tmp/arch-installer/output/*.iso ./"
+                }
+            }
+        }
+    }
+    post {
+        success {
+            archiveArtifacts artifacts: '*.iso', allowEmptyArchive: true
+        }
+        failure {
+            script {
+                def logContent = sh(script: "ssh root@${PACKER_VM_IP} 'cat /tmp/install.log'", returnStdout: true).trim()
+                echo "Build failed. Error log: ${logContent}"
+            }
+            archiveArtifacts artifacts: '*.log', allowEmptyArchive: true
+        }
+    }
+}
