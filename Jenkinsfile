@@ -18,7 +18,6 @@ pipeline {
                     def outputDir = "output-${timestamp}"
                     def sshPublicKey = sh(script: 'cat ~/.ssh/id_rsa.pub', returnStdout: true).trim()
                     
-                    // Jenkins SSH into Packer VM
                     sshagent(['github-ssh-key']) {
                         sh """
                             ssh root@${PACKER_VM_IP} "rm -rf /tmp/arch-iso-test || true"
@@ -27,9 +26,15 @@ pipeline {
                             ssh root@${PACKER_VM_IP} "bash /opt/packer/fetch_checksum.sh"
                             ISO_CHECKSUM=\$(ssh root@${PACKER_VM_IP} "cat /tmp/iso_checksum.txt")
                             echo "ISO_CHECKSUM=\$ISO_CHECKSUM"
-                            
-                            ssh root@${PACKER_VM_IP} "cd /opt/packer && PACKER_LOG=1 packer build -var 'iso_checksum=\$ISO_CHECKSUM' -var 'output_dir=${outputDir}' -var 'ssh_public_key=${sshPublicKey}' arch-iso.json"
-                            
+
+                            // Generate a temporary SSH key pair for the QEMU VM
+                            ssh root@${PACKER_VM_IP} "ssh-keygen -t rsa -b 4096 -f /tmp/packer_qemu_ssh_key -N ''"
+                            ssh root@${PACKER_VM_IP} "chmod 600 /tmp/packer_qemu_ssh_key"
+                            QEMU_SSH_PUBLIC_KEY=\$(ssh root@${PACKER_VM_IP} "cat /tmp/packer_qemu_ssh_key.pub")
+                            echo "QEMU_SSH_PUBLIC_KEY=\$QEMU_SSH_PUBLIC_KEY"
+
+                            ssh root@${PACKER_VM_IP} "cd /opt/packer && PACKER_LOG=1 packer build -var 'iso_checksum=\$ISO_CHECKSUM' -var 'output_dir=${outputDir}' -var 'ssh_public_key=\$QEMU_SSH_PUBLIC_KEY' arch-iso.json"
+
                             ssh root@${PACKER_VM_IP} "cat /tmp/packer.log"
                         """
                     }
@@ -45,7 +50,6 @@ pipeline {
                     def timestamp = new Date().format("yyyyMMddHHmmss")
                     def outputDir = "output-${timestamp}"
                     
-                    // Jenkins copies the ISO from Packer VM
                     sshagent(['github-ssh-key']) {
                         sh "scp root@${PACKER_VM_IP}:/opt/packer/${outputDir}/*.iso ./"
                     }

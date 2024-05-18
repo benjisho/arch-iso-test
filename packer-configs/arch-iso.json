@@ -13,7 +13,7 @@
         "format": "raw",
         "headless": true,
         "ssh_username": "root",
-        "ssh_password": "root",
+        "ssh_private_key_file": "/tmp/packer_qemu_ssh_key",
         "ssh_wait_timeout": "20m",
         "ssh_port": 22,
         "boot_wait": "10s",
