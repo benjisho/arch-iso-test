@@ -1,0 +1,41 @@
+{
+    "variables": {
+        "iso_checksum": "",
+        "output_dir": "output-{{timestamp}}"
+    },
+    "builders": [{
+        "type": "qemu",
+        "iso_url": "https://mirror.rackspace.com/archlinux/iso/latest/archlinux-x86_64.iso",
+        "iso_checksum": "{{user `iso_checksum`}}",
+        "output_directory": "{{user `output_dir`}}",
+        "disk_size": 10240,
+        "format": "raw",
+        "headless": true,
+        "ssh_username": "arch",
+        "ssh_password": "arch",
+        "ssh_wait_timeout": "20m",
+        "ssh_port": 22,
+        "boot_wait": "10s",
+        "boot_command": [
+            "<enter><wait>",
+            "/usr/bin/loadkeys us<enter><wait>",
+            "systemctl start sshd<enter><wait>",
+            "passwd<enter><wait>",
+            "arch<enter><wait>",
+            "arch<enter><wait>",
+            "<enter>"
+        ],
+        "shutdown_command": "echo 'arch' | sudo -S shutdown -P now"
+    }],
+    "provisioners": [
+    {
+        "type": "shell",
+        "inline": [
+            "echo 'arch:arch' | chpasswd",
+            "pacman -Sy --noconfirm git python",
+            "git clone https://github.com/benjisho/arch-iso-test.git /tmp/arch-iso-test",
+            "cd /tmp/arch-iso-test && python install.py > /tmp/install.log 2>&1 || { echo 'Install failed'; cat /tmp/install.log; exit 1; }"
+        ]
+    }
+    ]
+}
