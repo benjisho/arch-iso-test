@@ -14,6 +14,9 @@ pipeline {
         stage('Build Image') {
             steps {
                 script {
+                    def timestamp = new Date().format("yyyyMMddHHmmss")
+                    def outputDir = "output-${timestamp}"
+                    
                     sshagent(['github-ssh-key']) {
                         sh """
                             ssh root@${PACKER_VM_IP} "rm -rf /tmp/arch-iso-test || true"
@@ -22,7 +25,7 @@ pipeline {
                             ssh root@${PACKER_VM_IP} "bash /opt/packer/fetch_checksum.sh"
                             ISO_CHECKSUM=\$(ssh root@${PACKER_VM_IP} "cat /tmp/iso_checksum.txt")
                             echo "ISO_CHECKSUM=\$ISO_CHECKSUM"
-                            ssh root@${PACKER_VM_IP} "cd /opt/packer && packer build -var 'iso_checksum=\$ISO_CHECKSUM' arch-iso.json"
+                            ssh root@${PACKER_VM_IP} "cd /opt/packer && packer build -var 'iso_checksum=\$ISO_CHECKSUM' -var 'output_dir=${outputDir}' arch-iso.json"
                         """
                     }
                 }
@@ -33,8 +36,13 @@ pipeline {
                 expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
             }
             steps {
-                sshagent(['github-ssh-key']) {
-                    sh "scp root@${PACKER_VM_IP}:/opt/packer/output/*.iso ./"
+                script {
+                    def timestamp = new Date().format("yyyyMMddHHmmss")
+                    def outputDir = "output-${timestamp}"
+                    
+                    sshagent(['github-ssh-key']) {
+                        sh "scp root@${PACKER_VM_IP}:/opt/packer/${outputDir}/*.iso ./"
+                    }
                 }
             }
         }
