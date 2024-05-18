@@ -5,7 +5,6 @@ pipeline {
         GIT_REPO_URL = 'https://github.com/benjisho/arch-iso-test.git' // the git that we are testing
         BRANCH_NAME = 'main' // the branch in that git that we are testing.
         PACKER_LOG = '1' // Enable Packer logging
-        PACKER_LOG_PATH = '/tmp/packer.log' // Path to Packer log file
     }
     stages {
         stage('Checkout') {
@@ -29,8 +28,7 @@ pipeline {
                             ssh root@${PACKER_VM_IP} "bash /opt/packer/fetch_checksum.sh"
                             ISO_CHECKSUM=\$(ssh root@${PACKER_VM_IP} "cat /tmp/iso_checksum.txt")
                             echo "ISO_CHECKSUM=\$ISO_CHECKSUM"
-                            ssh root@${PACKER_VM_IP} "cd /opt/packer && PACKER_LOG=1 PACKER_LOG_PATH=/tmp/packer.log packer build -var 'iso_checksum=\$ISO_CHECKSUM' -var 'output_dir=${outputDir}' -var 'ssh_public_key=${sshPublicKey}' arch-iso.json &"
-                            ssh root@${PACKER_VM_IP} "tail -f /tmp/packer.log" &
+                            ssh root@${PACKER_VM_IP} "cd /opt/packer && PACKER_LOG=1 PACKER_LOG_PATH=/tmp/packer.log packer build -var 'iso_checksum=\$ISO_CHECKSUM' -var 'output_dir=${outputDir}' -var 'ssh_public_key=${sshPublicKey}' arch-iso.json" 2>&1 | tee /tmp/packer_build.log
                         """
                     }
                 }
@@ -58,7 +56,7 @@ pipeline {
         }
         failure {
             script {
-                def logContent = sh(script: "ssh root@${PACKER_VM_IP} 'cat /tmp/install.log'", returnStdout: true).trim()
+                def logContent = sh(script: "ssh root@${PACKER_VM_IP} 'cat /tmp/packer_build.log'", returnStdout: true).trim()
                 echo "Build failed. Error log: ${logContent}"
             }
             archiveArtifacts artifacts: '*.log', allowEmptyArchive: true
