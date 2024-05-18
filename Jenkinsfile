@@ -19,6 +19,7 @@ pipeline {
                     def sshPublicKey = sh(script: 'cat ~/.ssh/id_rsa.pub', returnStdout: true).trim()
                     
                     sshagent(['github-ssh-key']) {
+                        sh 'ssh-add -l'
                         sh """
                             ssh root@${PACKER_VM_IP} "rm -rf /tmp/arch-iso-test || true"
                             ssh root@${PACKER_VM_IP} "git clone ${GIT_REPO_URL} /tmp/arch-iso-test"
