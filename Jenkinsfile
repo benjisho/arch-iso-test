@@ -8,7 +8,13 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: "${BRANCH_NAME}", url: "${GIT_REPO_URL}"
+                script {
+                    // Check if Git is installed
+                    sh 'git --version'
+
+                    // Checkout the repository
+                    git branch: "${BRANCH_NAME}", url: "${GIT_REPO_URL}"
+                }
             }
         }
         stage('Build Image') {
@@ -19,15 +25,20 @@ pipeline {
                     def sshPublicKey = sh(script: 'cat ~/.ssh/id_rsa.pub', returnStdout: true).trim()
                     
                     sshagent(['github-ssh-key']) {
+                        // List the added keys
                         sh 'ssh-add -l'
+
+                        // Verbose SSH commands for better logging
                         sh """
-                            ssh root@${PACKER_VM_IP} "rm -rf /tmp/arch-iso-test || true"
-                            ssh root@${PACKER_VM_IP} "git clone ${GIT_REPO_URL} /tmp/arch-iso-test"
-                            ssh root@${PACKER_VM_IP} "packer --version && packer plugins installed"
-                            ssh root@${PACKER_VM_IP} "bash /opt/packer/fetch_checksum.sh"
-                            ISO_CHECKSUM=\$(ssh root@${PACKER_VM_IP} "cat /tmp/iso_checksum.txt")
+                            set -x
+                            ssh -vvv root@${PACKER_VM_IP} "rm -rf /tmp/arch-iso-test || true"
+                            ssh -vvv root@${PACKER_VM_IP} "git clone ${GIT_REPO_URL} /tmp/arch-iso-test"
+                            ssh -vvv root@${PACKER_VM_IP} "packer --version && packer plugins installed"
+                            ssh -vvv root@${PACKER_VM_IP} "bash /opt/packer/fetch_checksum.sh"
+                            ISO_CHECKSUM=\$(ssh -vvv root@${PACKER_VM_IP} "cat /tmp/iso_checksum.txt")
                             echo "ISO_CHECKSUM=\$ISO_CHECKSUM"
-                            ssh root@${PACKER_VM_IP} "cd /opt/packer && packer build -var 'iso_checksum=\$ISO_CHECKSUM' -var 'output_dir=${outputDir}' -var 'ssh_public_key=${sshPublicKey}' arch-iso.json"
+                            ssh -vvv root@${PACKER_VM_IP} "cd /opt/packer && packer build -var 'iso_checksum=\$ISO_CHECKSUM' -var 'output_dir=${outputDir}' -var 'ssh_public_key=${sshPublicKey}' arch-iso.json"
+                            set +x
                         """
                     }
                 }
@@ -43,7 +54,7 @@ pipeline {
                     def outputDir = "output-${timestamp}"
                     
                     sshagent(['github-ssh-key']) {
-                        sh "scp root@${PACKER_VM_IP}:/opt/packer/${outputDir}/*.iso ./"
+                        sh "scp -v root@${PACKER_VM_IP}:/opt/packer/${outputDir}/*.iso ./"
                     }
                 }
             }
