@@ -14,7 +14,7 @@ pipeline {
         stage('Build Image') {
             steps {
                 script {
-                    sshagent(['packer-ssh-key']) {
+                    sshagent(['github-ssh-key']) {
                         sh """
                             ssh root@${PACKER_VM_IP} "rm -rf /tmp/arch-iso-test || true"
                             ssh root@${PACKER_VM_IP} "git clone ${GIT_REPO_URL} /tmp/arch-iso-test"
@@ -29,7 +29,7 @@ pipeline {
                 expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
             }
             steps {
-                sshagent(['packer-ssh-key']) {
+                sshagent(['github-ssh-key']) {
                     sh "scp root@${PACKER_VM_IP}:/opt/packer/output/*.iso ./"
                 }
             }
