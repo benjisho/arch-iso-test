@@ -16,6 +16,7 @@ pipeline {
                 script {
                     def timestamp = new Date().format("yyyyMMddHHmmss")
                     def outputDir = "output-${timestamp}"
+                    def sshPublicKey = sh(script: 'cat ~/.ssh/id_rsa.pub', returnStdout: true).trim()
                     
                     sshagent(['github-ssh-key']) {
                         sh """
@@ -25,7 +26,7 @@ pipeline {
                             ssh root@${PACKER_VM_IP} "bash /opt/packer/fetch_checksum.sh"
                             ISO_CHECKSUM=\$(ssh root@${PACKER_VM_IP} "cat /tmp/iso_checksum.txt")
                             echo "ISO_CHECKSUM=\$ISO_CHECKSUM"
-                            ssh root@${PACKER_VM_IP} "cd /opt/packer && packer build -var 'iso_checksum=\$ISO_CHECKSUM' -var 'output_dir=${outputDir}' arch-iso.json"
+                            ssh root@${PACKER_VM_IP} "cd /opt/packer && packer build -var 'iso_checksum=\$ISO_CHECKSUM' -var 'output_dir=${outputDir}' -var 'ssh_public_key=${sshPublicKey}' arch-iso.json"
                         """
                     }
                 }
