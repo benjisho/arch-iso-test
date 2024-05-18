@@ -20,7 +20,8 @@ pipeline {
                             ssh root@${PACKER_VM_IP} "git clone ${GIT_REPO_URL} /tmp/arch-iso-test"
                             ssh root@${PACKER_VM_IP} "packer --version && packer plugins installed"
                             ssh root@${PACKER_VM_IP} "bash /opt/packer/fetch_checksum.sh"
-                            ssh root@${PACKER_VM_IP} "source /root/.bashrc && cd /opt/packer && packer build -var 'iso_checksum=${ISO_CHECKSUM}' arch-iso.json"
+                            ssh root@${PACKER_VM_IP} "source /root/.bashrc && echo \$ISO_CHECKSUM"
+                            ssh root@${PACKER_VM_IP} "source /root/.bashrc && cd /opt/packer && packer build -var 'iso_checksum=\$ISO_CHECKSUM' arch-iso.json"
                         """
                     }
                 }
