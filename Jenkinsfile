@@ -1,9 +1,9 @@
 pipeline {
     agent any
     environment {
-        PACKER_VM_IP = '10.8.112.3'
-        GIT_REPO_URL = 'https://github.com/benjisho/arch-iso-test.git'
-        BRANCH_NAME = 'main'
+        PACKER_VM_IP = '10.8.112.3' // the IP of the packer machine.
+        GIT_REPO_URL = 'https://github.com/benjisho/arch-iso-test.git' // the git that we are testing
+        BRANCH_NAME = 'main' // the branch in that git that we are testing.
     }
     stages {
         stage('Checkout') {
@@ -41,7 +41,7 @@ pipeline {
     }
     post {
         success {
-            archiveArtifacts artifacts: '*.iso', allowEmptyArchive: true
+            archiveArtifacts artifacts: '*.iso', allowEmptyArchive: true // store the iso file locally of the jenkins.
         }
         failure {
             script {
