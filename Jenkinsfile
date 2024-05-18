@@ -3,6 +3,7 @@ pipeline {
     environment {
         PACKER_VM_IP = '10.8.112.3'
         GIT_REPO_URL = 'https://github.com/benjisho/arch-iso-test.git'
+        BRANCH_NAME = 'main'
     }
     stages {
         stage('Checkout') {
