@@ -28,10 +28,8 @@ pipeline {
                             ISO_CHECKSUM=\$(ssh root@${PACKER_VM_IP} "cat /tmp/iso_checksum.txt")
                             echo "ISO_CHECKSUM=\$ISO_CHECKSUM"
                             
-                            // Packer running on Packer VM
                             ssh root@${PACKER_VM_IP} "cd /opt/packer && PACKER_LOG=1 packer build -var 'iso_checksum=\$ISO_CHECKSUM' -var 'output_dir=${outputDir}' -var 'ssh_public_key=${sshPublicKey}' arch-iso.json"
                             
-                            // Show Packer log for verbosity
                             ssh root@${PACKER_VM_IP} "cat /tmp/packer.log"
                         """
                     }
