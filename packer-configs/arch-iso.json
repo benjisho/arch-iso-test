@@ -1,7 +1,8 @@
 {
     "variables": {
         "iso_checksum": "",
-        "output_dir": "output-{{timestamp}}"
+        "output_dir": "output-{{timestamp}}",
+        "ssh_public_key": ""
     },
     "builders": [{
         "type": "qemu",
@@ -30,8 +31,7 @@
         ],
         "shutdown_command": "echo 'root' | shutdown -P now"
     }],
-    "provisioners": [
-    {
+    "provisioners": [{
         "type": "shell",
         "inline": [
             "echo 'root:root' | chpasswd",
@@ -39,6 +39,5 @@
             "git clone https://github.com/benjisho/arch-iso-test.git /tmp/arch-iso-test",
             "cd /tmp/arch-iso-test && python install.py > /tmp/install.log 2>&1 || { echo 'Install failed'; cat /tmp/install.log; exit 1; }"
         ]
-    }
-    ]
+    }]
 }
