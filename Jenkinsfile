@@ -7,7 +7,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git url: "${GIT_REPO_URL}"
+                git branch: "${BRANCH_NAME}", url: "${GIT_REPO_URL}"
             }
         }
         stage('Build Image') {
