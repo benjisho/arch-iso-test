@@ -18,6 +18,7 @@ pipeline {
                         sh """
                             ssh root@${PACKER_VM_IP} "rm -rf /tmp/arch-iso-test || true"
                             ssh root@${PACKER_VM_IP} "git clone ${GIT_REPO_URL} /tmp/arch-iso-test"
+                            ssh root@${PACKER_VM_IP} "packer --version && packer plugins installed"
                             ssh root@${PACKER_VM_IP} "cd /opt/packer && packer build arch-iso.json"
                         """
                     }
