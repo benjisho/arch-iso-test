@@ -12,21 +12,33 @@ The setup includes:
 ## Prerequisites
 
 - A Jenkins server with the following plugins:
+  - Operational System => **Ubuntu 24.04**
   - Git Plugin
   - SSH Agent Plugin
 - A Packer VM with the following installed:
+  - Operational System => **Arch Linux**
   - Packer
   - QEMU
+  - TigerVNC
   - Git
   - Python
+  - Python3
+  - archiso
 
 ## Getting Started
 
+### Setting up Jenkins Machine
+
+Copy and paste the commands in this [LINK](https://www.jenkins.io/doc/book/installing/linux/)
+
 ### Setting Up the Packer VM
+
+Copy and paste the commands in this [LINK](https://developer.hashicorp.com/packer/tutorials/docker-get-started/get-started-install-cli)
 
 1. **Install Required Software:**
    ```bash
-   sudo apt update
+   sudo pacman -Syyu
+   sudo pacman -Syu git python3 qemu tigervnc
    sudo apt install packer qemu git python3 -y
    ```
 
