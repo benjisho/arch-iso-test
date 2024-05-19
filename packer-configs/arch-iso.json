@@ -37,7 +37,8 @@
         ],
         "qemuargs": [
             ["-serial", "mon:stdio"]
-        ]
+        ],
+        "shutdown_command": "shutdown -P now"
     }],
     "provisioners": [
         {
