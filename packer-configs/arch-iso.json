@@ -28,8 +28,7 @@
             "root<enter><wait>",
             "root<enter><wait>",
             "<enter>"
-        ],
-        "shutdown_command": "sleep 10 && echo 'root' | shutdown -P now"
+        ]
     }],
     "provisioners": [{
         "type": "shell",
