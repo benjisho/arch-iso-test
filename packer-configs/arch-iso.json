@@ -15,7 +15,6 @@
         "ssh_username": "root",
         "ssh_password": "root",
         "ssh_wait_timeout": "20m",
-        "ssh_port": 22,
         "boot_wait": "10s",
         "boot_command": [
             "<enter><wait>",
