@@ -26,7 +26,8 @@ pipeline {
                             ssh root@${PACKER_VM_IP} "bash /opt/packer/fetch_checksum.sh"
                             ISO_CHECKSUM=\$(ssh root@${PACKER_VM_IP} "cat /tmp/iso_checksum.txt")
                             echo "ISO_CHECKSUM=\$ISO_CHECKSUM"
-                            
+
+                            ssh root@${PACKER_VM_IP} "rm -f /tmp/packer_qemu_ssh_key /tmp/packer_qemu_ssh_key.pub"
                             ssh root@${PACKER_VM_IP} "ssh-keygen -t rsa -b 4096 -f /tmp/packer_qemu_ssh_key -N ''"
                             ssh root@${PACKER_VM_IP} "chmod 600 /tmp/packer_qemu_ssh_key"
                             QEMU_SSH_PUBLIC_KEY=\$(ssh root@${PACKER_VM_IP} "cat /tmp/packer_qemu_ssh_key.pub")
