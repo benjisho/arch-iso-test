@@ -15,7 +15,7 @@
         "ssh_username": "root",
         "ssh_password": "root",
         "ssh_wait_timeout": "20m",
-        "boot_wait": "60s",
+        "boot_wait": "90s",
         "boot_command": [
             "<enter><wait10>",
             "/usr/bin/loadkeys us<enter><wait10>",
@@ -34,7 +34,7 @@
             "cat /etc/ssh/sshd_config<enter><wait10>",
             "ls -l /root/.ssh<enter><wait10>",
             "cat /root/.ssh/authorized_keys<enter><wait10>"
-        ],        
+        ],
         "qemuargs": [
             ["-serial", "mon:stdio"]
         ]
