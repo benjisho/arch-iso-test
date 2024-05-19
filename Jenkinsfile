@@ -41,7 +41,7 @@ pipeline {
                 }
             }
         }
-        stage('Copy Packer ISO') {
+        stage('Copy ISO') {
             when {
                 expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
             }
@@ -56,36 +56,6 @@ pipeline {
                 }
             }
         }
-        stage('Build Custom ISO') {
-            steps {
-                script {
-                    def outputDir = "custom-iso-output"
-                    
-                    sshagent(['github-ssh-key']) {
-                        sh """
-                            ssh root@${PACKER_VM_IP} "
-                            cp -r /usr/share/archiso/configs/releng /tmp/customiso &&
-                            cp /tmp/arch-iso-test/airootfs/root/customize_airootfs.sh /tmp/customiso/airootfs/root/ &&
-                            cp /tmp/arch-iso-test/pacman.conf /tmp/customiso/ &&
-                            mkarchiso -v -w /tmp/customiso/work -o /tmp/customiso/out /tmp/customiso
-                            "
-                        """
-                    }
-                }
-            }
-        }
-        stage('Copy Custom ISO') {
-            when {
-                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
-            }
-            steps {
-                script {
-                    sshagent(['github-ssh-key']) {
-                        sh "scp root@${PACKER_VM_IP}:/tmp/customiso/out/*.iso ./"
-                    }
-                }
-            }
-        }
         stage('Shutdown VM') {
             steps {
                 sshagent(['github-ssh-key']) {
@@ -96,7 +66,7 @@ pipeline {
     }
     post {
         success {
-            archiveArtifacts artifacts: '*.iso', allowEmptyArchive: true // store the iso files locally on Jenkins
+            archiveArtifacts artifacts: '*.iso', allowEmptyArchive: true // store the iso file locally on Jenkins
         }
         failure {
             script {
