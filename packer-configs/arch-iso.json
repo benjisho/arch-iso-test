@@ -15,28 +15,31 @@
         "ssh_username": "root",
         "ssh_password": "root",
         "ssh_wait_timeout": "20m",
-        "boot_wait": "30s",
+        "boot_wait": "60s",
         "boot_command": [
             "<enter><wait>",
             "/usr/bin/loadkeys us<enter><wait>",
-            "mkdir -p /root/.ssh<enter><wait>",
             "echo '{{user `ssh_public_key`}}' >> /root/.ssh/authorized_keys<enter><wait>",
             "chmod 600 /root/.ssh/authorized_keys<enter><wait>",
             "echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config<enter><wait>",
             "echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config<enter><wait>",
-            "systemctl restart sshd<enter><wait>",
+            "systemctl enable sshd<enter><wait>",
+            "systemctl start sshd<enter><wait>",
             "passwd<enter><wait>",
             "root<enter><wait>",
             "root<enter><wait>",
             "<enter>",
-            "systemctl status sshd<enter><wait>"
+            "systemctl status sshd<enter><wait>",
+            "cat /etc/ssh/sshd_config<enter><wait>",
+            "ls -l /root/.ssh<enter><wait>",
+            "cat /root/.ssh/authorized_keys<enter><wait>"
         ]
     }],
     "provisioners": [{
         "type": "shell",
         "inline": [
             "echo 'root:root' | chpasswd",
-            "pacman -Sy --noconfirm git python",
+            "pacman -Sy --noconfirm openssh git python",
             "git clone https://github.com/benjisho/arch-iso-test.git /tmp/arch-iso-test",
             "cd /tmp/arch-iso-test && python install.py > /tmp/install.log 2>&1 || { echo 'Install failed'; cat /tmp/install.log; exit 1; }"
         ]
