@@ -19,6 +19,7 @@
         "boot_command": [
             "<enter><wait>",
             "/usr/bin/loadkeys us<enter><wait>",
+            "mkdir -p /root/.ssh<enter><wait>",
             "echo '{{user `ssh_public_key`}}' >> /root/.ssh/authorized_keys<enter><wait>",
             "chmod 600 /root/.ssh/authorized_keys<enter><wait>",
             "echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config<enter><wait>",
@@ -33,6 +34,9 @@
             "cat /etc/ssh/sshd_config<enter><wait>",
             "ls -l /root/.ssh<enter><wait>",
             "cat /root/.ssh/authorized_keys<enter><wait>"
+        ],
+        "qemuargs": [
+            ["-serial", "mon:stdio"]
         ]
     }],
     "provisioners": [{
