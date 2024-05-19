@@ -1,28 +1,37 @@
+import subprocess
 import os
 
+def run_command(command):
+    result = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return result.stdout.decode('utf-8'), result.stderr.decode('utf-8')
+
 def install_packages():
-    # Update package database and upgrade system
-    os.system('pacman -Syu --noconfirm')
-
-    # Install official packages
-    official_packages = [
-        'libnma',  # Example package
-        # Add other official packages here
+    packages = [
+        "base",
+        "linux",
+        "linux-firmware",
+        "git",
+        "python",
+        "libnma",  # Add more packages as needed
     ]
-    os.system(f'pacman -Sy --noconfirm {" ".join(official_packages)}')
+    run_command(f"pacman -Sy --noconfirm {' '.join(packages)}")
 
-    # Install AUR helper (yay)
-    os.system('pacman -Sy --noconfirm base-devel git')
-    os.system('git clone https://aur.archlinux.org/yay.git /tmp/yay')
-    os.chdir('/tmp/yay')
-    os.system('makepkg -si --noconfirm')
+def build_aur_package(pkg_name):
+    run_command(f"git clone https://aur.archlinux.org/{pkg_name}.git /tmp/{pkg_name}")
+    os.chdir(f"/tmp/{pkg_name}")
+    run_command("makepkg -si --noconfirm")
 
-    # Install AUR packages
+def install_aur_packages():
     aur_packages = [
-        'google-chrome',  # Example package
-        # Add other AUR packages here
+        "google-chrome"  # Add more AUR packages as needed
     ]
-    os.system(f'yay -S --noconfirm {" ".join(aur_packages)}')
+    for pkg in aur_packages:
+        build_aur_package(pkg)
+
+def main():
+    install_packages()
+    install_aur_packages()
+    # Add any other necessary setup here
 
 if __name__ == "__main__":
-    install_packages()
+    main()
