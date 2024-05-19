@@ -39,13 +39,19 @@
             ["-serial", "mon:stdio"]
         ]
     }],
-    "provisioners": [{
-        "type": "shell",
-        "inline": [
-            "echo 'root:root' | chpasswd",
-            "pacman -Sy --noconfirm openssh git python",
-            "git clone https://github.com/benjisho/arch-iso-test.git /tmp/arch-iso-test",
-            "cd /tmp/arch-iso-test && python install.py > /tmp/install.log 2>&1 || { echo 'Install failed'; cat /tmp/install.log; exit 1; }"
-        ]
-    }]
+    "provisioners": [
+        {
+            "type": "shell",
+            "inline": [
+                "echo 'root:root' | chpasswd",
+                "pacman -Sy --noconfirm archiso git python",
+                "git clone https://github.com/benjisho/arch-iso-test.git /tmp/arch-iso-test",
+                "cd /tmp/arch-iso-test && python install.py > /tmp/install.log 2>&1 || { echo 'Install failed'; cat /tmp/install.log; exit 1; }",
+                "mkdir -p /tmp/archiso/airootfs/root/",
+                "cp -r /tmp/arch-iso-test /tmp/archiso/airootfs/root/",
+                "cd /tmp/archiso && mkarchiso -v .",
+                "mv /tmp/archiso/out/*.iso /root/"
+            ]
+        }
+    ]
 }
